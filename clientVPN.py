@@ -8,6 +8,7 @@ import smtplib, getpass, time, threading, os, socket
 from smtplib import SMTPException                   ## Dis is here incase we add email to client side
 from email.mime.multipart import MIMEMultipart      ## Might be helpful IDK
 from email.mime.text import MIMEText
+from Crypto.Random import get_random_bytes          ## Important for generating a key
 
 hostname = socket.gethostname()                     ## Gets hostname
 ip_address = socket.gethostbyname(hostname)         ## Gets user's IP address
@@ -19,7 +20,16 @@ class ServeryThings:
         self.hostname = hostname
 
     def encryption(self):
-        pass
+        key = get_random_bytes(32)                  ## Creates the encryption key
+        print(key)
+        filename = open("encryptionKeyTest.txt", "wb")
+        filename.write(key)
+        filename.close()                            ## Saves the key to file (unneccessary but for testing)
+
+        print("okayyyyy")
+        filename = open("encryptionKeyTest.txt", "r")
+        for word in filename:
+            print(word)
 
     def otherClientyThings(self):
         pass
@@ -57,11 +67,6 @@ class Login:
         accepted = True
         if accepted == True:
             print("You have logged in successfully. ")
-            ##                                  ##
-            ##                                  ##
-            ##  Start the actual program here.  ##
-            ##                                  ##
-            ##                                  ##
         else:
             print("Your login detailes are invalid. ")
             quit()
@@ -78,7 +83,10 @@ def login():
         l = Login(username,password)
         l.verification()
 
-if __name__ == '__main__':
-    s = ServeryThings(ip_address, hostname)
-    s.debug()
+def main():
     login()
+    s = ServeryThings(ip_address, hostname)
+    s.encryption()
+
+if __name__ == '__main__':
+    main()
