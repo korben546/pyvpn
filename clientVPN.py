@@ -9,6 +9,7 @@ from smtplib import SMTPException                   ## Dis is here incase we add
 from email.mime.multipart import MIMEMultipart      ## Might be helpful IDK
 from email.mime.text import MIMEText
 from Crypto.Random import get_random_bytes          ## Important for generating a key
+from Crypto.Protocol.KDF import PBKDF2
 
 hostname = socket.gethostname()                     ## Gets hostname
 ip_address = socket.gethostbyname(hostname)         ## Gets user's IP address
@@ -20,23 +21,16 @@ class ServeryThings:
         self.hostname = hostname
 
     def encryption(self):
-        key = get_random_bytes(32)                  ## Creates the encryption key
-        print(key)
-        filename = open("encryptionKeyTest.txt", "wb")
-        filename.write(key)
-        filename.close()                            ## Saves the key to file (unneccessary but for testing)
-
-        print("okayyyyy")
-        filename = open("encryptionKeyTest.txt", "r")
-        for word in filename:
-            print(word)
-
-    def otherClientyThings(self):
-        pass
+        salt = get_random_bytes(32)                 ## A salt is random data that is used as an additional input to a one-way function that "hashes" data.
+        salt = str(salt)                            ## Converts to string, idk if necessary but oh well
+        print(salt)
+        password = 'password123'                    ## Password or some shit idk
+        key = PBKDF2(password, salt, dkLen=32)      ## Your key that you can encrypt with
 
     def debug(self):
         print(f'Hostname: {self.hostname}')
         print(f'IP Address: {self.ip_address}')
+
 
 class Login:
     def __init__(self, username, password):
