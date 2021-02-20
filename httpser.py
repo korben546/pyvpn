@@ -1,3 +1,10 @@
+
+### Group VPN project attempt
+### Creators:
+### - MrCraftyCreeper
+### - MarvelousMatt04
+### - LostLuke
+
 #https tunnel thing can only take 1 connection atm as far as I know
 import SocketServer, SimpleHTTPServer ,urllib
 
