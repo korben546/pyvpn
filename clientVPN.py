@@ -2,30 +2,42 @@
 ### Creators:
 ### - MrCraftyCreeper
 ### - MarvelousMatt04
-### - LostLuke
 
-import smtplib, getpass, time, threading, os, socket
-from smtplib import SMTPException                   ## Dis is here incase we add email to client side
-from email.mime.multipart import MIMEMultipart      ## Might be helpful IDK
-from email.mime.text import MIMEText
+import getpass, time, threading, os, socket         ## All modules that might be necessary
 from Crypto.Random import get_random_bytes          ## Important for generating a key
-from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Cipher import AES
 
 hostname = socket.gethostname()                     ## Gets hostname
 ip_address = socket.gethostbyname(hostname)         ## Gets user's IP address
-
 
 class ServeryThings:
     def __init__(self, ip_address, hostname):
         self.ip_address = ip_address
         self.hostname = hostname
 
+### Encryption and decryption can both work on client or server side, however need to send the (currently)
+### global variables across. These variables are: key, cipher_encrypt and ciphered_data. Once this is done they
+### should no longer require the self parameter in front of them to function properly. That's probably a
+### really poor description lol
+
     def encryption(self):
-        salt = get_random_bytes(32)                 ## A salt is random data that is used as an additional input to a one-way function that "hashes" data.
-        salt = str(salt)                            ## Converts to string, idk if necessary but oh well
-        print(salt)
-        password = 'password123'                    ## Password or some shit idk
-        key = PBKDF2(password, salt, dkLen=32)      ## Your key that you can encrypt with
+        self.key = get_random_bytes(32)             ## Creates a key - Needs to be sent to server
+        data_to_encrypt = "test string"             ## String that gets encrypted
+        
+        data = data_to_encrypt.encode("utf-8")
+        self.cipher_encrypt = AES.new(self.key, AES.MODE_CFB)   ## This needs to be sent too
+        ciphered_bytes = self.cipher_encrypt.encrypt(data)
+        self.ciphered_data = ciphered_bytes                     ## And this
+        print("The encrypted message is:", self.ciphered_data)  ## Final encrypted message
+
+    def decryption(self):
+        # key = "_____" - The key that is sent from client
+        # ciphered_data = "______" - Again, this is sent from client
+        iv = self.cipher_encrypt.iv       ## Currently uses global variable but needs to use the one sent
+        cipher_decrypt = AES.new(self.key, AES.MODE_CFB, iv=iv)
+        deciphered_bytes = cipher_decrypt.decrypt(self.ciphered_data)
+        decrypted_data = deciphered_bytes.decode('utf-8')
+        print("The decrypted message is:", decrypted_data)      ## Decrypted message
 
     def debug(self):
         print(f'Hostname: {self.hostname}')
@@ -81,6 +93,7 @@ def main():
     login()
     s = ServeryThings(ip_address, hostname)
     s.encryption()
+    s.decryption()
 
 if __name__ == '__main__':
     main()
