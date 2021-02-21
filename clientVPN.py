@@ -59,16 +59,13 @@ class EncryptionyThings:
     def encryption(self, data_to_encrypt):
         key = get_random_bytes(32) 
         cipher_encrypt = AES.new(key, AES.MODE_CFB)
-        data = data_to_encrypt.encode("utf-8")
-        ciphered_data = cipher_encrypt.encrypt(data)
+        ciphered_data = cipher_encrypt.encrypt((data_to_encrypt.encode("utf-8")))
         print("Encrypted:", ciphered_data)
         return cipher_encrypt, ciphered_data
 
     def decryption(self, cipher_encrypt, ciphered_data):
-        iv = cipher_encrypt.iv
-        cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=iv)
-        deciphered_bytes = cipher_decrypt.decrypt(ciphered_data)
-        decrypted_data = deciphered_bytes.decode('utf-8')
+        cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=cipher_encrypt.iv)
+        decrypted_data = (cipher_decrypt.decrypt(ciphered_data)).decode('utf-8')
         return decrypted_data       
 
 ###################################################################################
