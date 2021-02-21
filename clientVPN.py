@@ -12,7 +12,18 @@ from Crypto.Cipher import AES
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 
-###################################################################################
+#################################### Login ########################################
+
+def login():
+    isUserNew = input("If you do not have a pre-existing account please enter 'Create new'. ").lower()
+    if isUserNew == "create new":
+        l = Login(username="",password="")
+        l.createNew()
+    else:
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+        l = Login(username,password)
+        l.verification()
 
 class Login:
     def __init__(self, username, password):
@@ -49,25 +60,27 @@ class Login:
             print("Your login detailes are invalid. ")
             quit()
 
-###################################################################################
+################################# Encryption ######################################
 
-class EncryptionyThings:
-    def __init__(self, ip_address, hostname):
-        self.ip_address = ip_address
-        self.hostname = hostname
+def encryption(data_to_encrypt):
+    key = get_random_bytes(32) 
+    cipher_encrypt = AES.new(key, AES.MODE_CFB)
+    ciphered_data = cipher_encrypt.encrypt((data_to_encrypt.encode("utf-8")))
+    return key, cipher_encrypt, ciphered_data
 
-    def encryption(self, data_to_encrypt):
-        key = get_random_bytes(32) 
-        cipher_encrypt = AES.new(key, AES.MODE_CFB)
-        ciphered_data = cipher_encrypt.encrypt((data_to_encrypt.encode("utf-8")))
-        return key, cipher_encrypt, ciphered_data
+def decryption(key, cipher_encrypt, ciphered_data):
+    cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=cipher_encrypt.iv)
+    decrypted_data = (cipher_decrypt.decrypt(ciphered_data)).decode('utf-8')
+    return decrypted_data     
 
-    def decryption(self, key, cipher_encrypt, ciphered_data):
-        cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=cipher_encrypt.iv)
-        decrypted_data = (cipher_decrypt.decrypt(ciphered_data)).decode('utf-8')
-        return decrypted_data       
+def encryptionProcess():
+    data = str(input("Enter string to be encrypted: "))
+    ciphered_data = encryption(data)  # ciphered_data[0 is the key, 1 is the iv thing, 2 is encrypted data]
+    print("Encrypted data:", ciphered_data[2]) 
+    decrypted_data = decryption(ciphered_data[0], ciphered_data[1], ciphered_data[2]) 
+    print("Decrypted data:", decrypted_data)  
 
-###################################################################################
+############################### Connect to server ##################################
 
 class ServeryThings:
     def __init__(self, ip_address, hostname, ciphered_data):
@@ -87,32 +100,7 @@ class ServeryThings:
 
 ###################################################################################
 
-def importantFunctionYes():
-    data = str(input("Enter string to be encrypted: "))
-    e = EncryptionyThings(ip_address, hostname)
-    ciphered_data = e.encryption(data)
-    key = ciphered_data[0]
-    cipher_encrypt = ciphered_data[1]
-    encrypted_data = ciphered_data[2]
-    print("Encrypted data:", encrypted_data)
-    # Send ciphered_data to server
-    # receive encrypted packets
-    decrypted_data = e.decryption(key, cipher_encrypt, encrypted_data)
-    print("Decrypted data:", decrypted_data)
-
-
-def login():
-    isUserNew = input("If you do not have a pre-existing account please enter 'Create new'. ").lower()
-    if isUserNew == "create new":
-        l = Login(username="",password="")
-        l.createNew()
-    else:
-        username = input("Enter your username: ")
-        password = input("Enter your password: ")
-        l = Login(username,password)
-        l.verification()
-
 
 if __name__ == '__main__':
     login()
-    importantFunctionYes()
+    encryptionProcess()
