@@ -27,9 +27,11 @@ class Login:
                 self.password = input("Enter password: ")
                 self.usersEmail = input("Please enter your email so we can contact you when/if your account is accepted: ")
                 ### Send over to the server
-                time.sleep(2)
-                print("You account has been created successfully. Please wait for a response confirming whether you login has been accepted or denied access. ")
-                break
+                time.sleep(1)
+                print("Loading...")
+                time.sleep(1)
+                print("You account has been created successfully. Please wait for a response confirming whether your account has been accepted or denied access. ")
+                quit()
             elif newAccVerif != "0000" and (3-i) > 0:
                 print(f'You have {3-i} attempts remaining. ')
             else:
@@ -58,22 +60,15 @@ class EncryptionyThings:
         key = get_random_bytes(32) 
         cipher_encrypt = AES.new(key, AES.MODE_CFB)
         data = data_to_encrypt.encode("utf-8")
-        iv = cipher_encrypt.iv
         ciphered_data = cipher_encrypt.encrypt(data)
         print("Encrypted:", ciphered_data)
-        # Decryption
-        cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=iv )
-        deciphered_bytes = cipher_decrypt.decrypt(ciphered_data)
-        decrypted_data = deciphered_bytes.decode('utf-8')
-        assert data_to_encrypt == decrypted_data, 'Original data does not match the result'
-        return key, ciphered_data, iv
+        return cipher_encrypt, ciphered_data
 
-    def decryption(self, key, ciphered_data, iv):
-        ## Currently uses global variable but needs to use the one sent
+    def decryption(self, cipher_encrypt, ciphered_data):
+        iv = cipher_encrypt.iv
         cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=iv)
         deciphered_bytes = cipher_decrypt.decrypt(ciphered_data)
         decrypted_data = deciphered_bytes.decode('utf-8')
-        print("Decrypted:", decrypted_data)
         return decrypted_data       
 
 ###################################################################################
@@ -100,12 +95,11 @@ def importantFunctionYes():
     data = str(input("Enter string to be encrypted: "))
     e = EncryptionyThings(ip_address, hostname)
     ciphered_data = e.encryption(data)
-    key = ciphered_data[0]
+    cipher_encrypt = ciphered_data[0]
     encrypted_data = ciphered_data[1]
-    iv = ciphered_data[2]
     # Send ciphered_data to server
     # receive encrypted packets
-    e.decryption(key, encrypted_data, iv)
+    print("Decrypted data:",e.decryption(cipher_encrypt, encrypted_data))
 
 
 def login():
