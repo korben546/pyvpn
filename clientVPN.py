@@ -1,48 +1,18 @@
 ### Group VPN project attempt
-### Creators:
+### Current creators:
 ### - MrCraftyCreeper
 ### - MarvelousMatt04
 
-import getpass, time, threading, os, socket         ## All modules that might be necessary
-from Crypto.Random import get_random_bytes          ## Important for generating a key
+# ===== Client side ===== #
+
+import getpass, time, threading, os, socket, sys
+from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES
 
-hostname = socket.gethostname()                     ## Gets hostname
-ip_address = socket.gethostbyname(hostname)         ## Gets user's IP address
+hostname = socket.gethostname()
+ip_address = socket.gethostbyname(hostname)
 
-class ServeryThings:
-    def __init__(self, ip_address, hostname):
-        self.ip_address = ip_address
-        self.hostname = hostname
-
-### Encryption and decryption can both work on client or server side, however need to send the (currently)
-### global variables across. These variables are: key, cipher_encrypt and ciphered_data. Once this is done they
-### should no longer require the self parameter in front of them to function properly. That's probably a
-### really poor description lol
-
-    def encryption(self):
-        self.key = get_random_bytes(32)             ## Creates a key - Needs to be sent to server
-        data_to_encrypt = "test string"             ## String that gets encrypted
-        
-        data = data_to_encrypt.encode("utf-8")
-        self.cipher_encrypt = AES.new(self.key, AES.MODE_CFB)   ## This needs to be sent too
-        ciphered_bytes = self.cipher_encrypt.encrypt(data)
-        self.ciphered_data = ciphered_bytes                     ## And this
-        print("The encrypted message is:", self.ciphered_data)  ## Final encrypted message
-
-    def decryption(self):
-        # key = "_____" - The key that is sent from client
-        # ciphered_data = "______" - Again, this is sent from client
-        iv = self.cipher_encrypt.iv       ## Currently uses global variable but needs to use the one sent
-        cipher_decrypt = AES.new(self.key, AES.MODE_CFB, iv=iv)
-        deciphered_bytes = cipher_decrypt.decrypt(self.ciphered_data)
-        decrypted_data = deciphered_bytes.decode('utf-8')
-        print("The decrypted message is:", decrypted_data)      ## Decrypted message
-
-    def debug(self):
-        print(f'Hostname: {self.hostname}')
-        print(f'IP Address: {self.ip_address}')
-
+###################################################################################
 
 class Login:
     def __init__(self, username, password):
@@ -76,7 +46,67 @@ class Login:
         else:
             print("Your login detailes are invalid. ")
             quit()
-        
+
+###################################################################################
+
+class EncryptionyThings:
+    def __init__(self, ip_address, hostname):
+        self.ip_address = ip_address
+        self.hostname = hostname
+
+    def encryption(self, data_to_encrypt):
+        key = get_random_bytes(32) 
+        cipher_encrypt = AES.new(key, AES.MODE_CFB)
+        data = data_to_encrypt.encode("utf-8")
+        iv = cipher_encrypt.iv
+        ciphered_data = cipher_encrypt.encrypt(data)
+        print("Encrypted:", ciphered_data)
+        # Decryption
+        cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=iv )
+        deciphered_bytes = cipher_decrypt.decrypt(ciphered_data)
+        decrypted_data = deciphered_bytes.decode('utf-8')
+        assert data_to_encrypt == decrypted_data, 'Original data does not match the result'
+        return key, ciphered_data, iv
+
+    def decryption(self, key, ciphered_data, iv):
+        ## Currently uses global variable but needs to use the one sent
+        cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=iv)
+        deciphered_bytes = cipher_decrypt.decrypt(ciphered_data)
+        decrypted_data = deciphered_bytes.decode('utf-8')
+        print("Decrypted:", decrypted_data)
+        return decrypted_data       
+
+###################################################################################
+
+class ServeryThings:
+    def __init__(self, ip_address, hostname, ciphered_data):
+        self.ip_address = ip_address
+        self.hostname = hostname
+        self.ciphered_data = ciphered_data
+
+    def establishConnection(self):
+        pass
+
+    def sendingData(self):
+        pass
+
+    def debug(self):
+        print(f'Hostname: {self.hostname}')
+        print(f'IP Address: {self.ip_address}') 
+
+###################################################################################
+
+def importantFunctionYes():
+    data = str(input("Enter string to be encrypted: "))
+    e = EncryptionyThings(ip_address, hostname)
+    ciphered_data = e.encryption(data)
+    key = ciphered_data[0]
+    encrypted_data = ciphered_data[1]
+    iv = ciphered_data[2]
+    # Send ciphered_data to server
+    # receive encrypted packets
+    e.decryption(key, encrypted_data, iv)
+
 
 def login():
     isUserNew = input("If you do not have a pre-existing account please enter 'Create new'. ").lower()
@@ -89,11 +119,7 @@ def login():
         l = Login(username,password)
         l.verification()
 
-def main():
-    login()
-    s = ServeryThings(ip_address, hostname)
-    s.encryption()
-    s.decryption()
 
 if __name__ == '__main__':
-    main()
+    login()
+    importantFunctionYes()
