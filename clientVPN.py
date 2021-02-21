@@ -60,10 +60,9 @@ class EncryptionyThings:
         key = get_random_bytes(32) 
         cipher_encrypt = AES.new(key, AES.MODE_CFB)
         ciphered_data = cipher_encrypt.encrypt((data_to_encrypt.encode("utf-8")))
-        print("Encrypted:", ciphered_data)
-        return cipher_encrypt, ciphered_data
+        return key, cipher_encrypt, ciphered_data
 
-    def decryption(self, cipher_encrypt, ciphered_data):
+    def decryption(self, key, cipher_encrypt, ciphered_data):
         cipher_decrypt = AES.new(key, AES.MODE_CFB, iv=cipher_encrypt.iv)
         decrypted_data = (cipher_decrypt.decrypt(ciphered_data)).decode('utf-8')
         return decrypted_data       
@@ -92,11 +91,14 @@ def importantFunctionYes():
     data = str(input("Enter string to be encrypted: "))
     e = EncryptionyThings(ip_address, hostname)
     ciphered_data = e.encryption(data)
-    cipher_encrypt = ciphered_data[0]
-    encrypted_data = ciphered_data[1]
+    key = ciphered_data[0]
+    cipher_encrypt = ciphered_data[1]
+    encrypted_data = ciphered_data[2]
+    print("Encrypted data:", encrypted_data)
     # Send ciphered_data to server
     # receive encrypted packets
-    print("Decrypted data:",e.decryption(cipher_encrypt, encrypted_data))
+    decrypted_data = e.decryption(key, cipher_encrypt, encrypted_data)
+    print("Decrypted data:", decrypted_data)
 
 
 def login():
