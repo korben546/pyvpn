@@ -11,6 +11,7 @@ from Crypto.Cipher import AES
 
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
+ciphered_data = []
 
 #################################### Login ########################################
 
@@ -78,18 +79,35 @@ def encryptionProcess():
     ciphered_data = encryption(data)  # ciphered_data[0 is the key, 1 is the iv thing, 2 is encrypted data]
     print("Encrypted data:", ciphered_data[2]) 
     decrypted_data = decryption(ciphered_data[0], ciphered_data[1], ciphered_data[2]) 
-    print("Decrypted data:", decrypted_data)  
+    print("Decrypted data:", decrypted_data)
+    return ciphered_data
 
 ############################### Connect to server ##################################
 
 class ServeryThings:
-    def __init__(self, ip_address, hostname, ciphered_data):
+    def __init__(self, ip_address, hostname):
         self.ip_address = ip_address
         self.hostname = hostname
-        self.ciphered_data = ciphered_data
+        self.ciphered_data = "This is a message"
 
     def establishConnection(self):
-        pass
+        print("Test")
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_address = ('localhost', 5010)
+        sock.connect(server_address)
+        try:
+            print("Trying")
+            message = self.ciphered_data
+            amount_received = 0
+            amount_expected = len(message)
+            while amount_received < amount_expected:
+                print("Hmmm")
+                data = sock.recv(16)
+                amount_received += len(data)
+                print("received")
+        finally:
+            print("Closing socket.")
+            sock.close()
 
     def sendingData(self):
         pass
@@ -100,7 +118,8 @@ class ServeryThings:
 
 ###################################################################################
 
-
 if __name__ == '__main__':
     login()
     encryptionProcess()
+    s = ServeryThings(ip_address, hostname)
+    s.establishConnection()
