@@ -17,18 +17,19 @@ class serverfun():
         verify = False
         decrypt_pass = ""
         while True:
-            connection, client_address = sock.accept()
+            connection, client_address = sock.accept()  #all of this may be temporary because of multi user stuff
             while True:
-                global data
+                #global data
                 length = connection.recv(6)     #this sets the buffer based on the length of the data the client is trying to send caution without this things dont work
                 try:
                     length = int(length.decode())
                 except:
-                    print("This is not a number assuming zero as a last ditch effort \n" + length.decode())  #Would assert but that doesnt work here plus error handling for debugging
-                    length = 0
+                    print("This is not a number assuming 2000 as a last ditch effort \n" + length.decode())  #Would assert but that doesnt work here plus error handling for debugging
+                    length = 2000
                 data = connection.recv(length)
                 data = data.decode()
-                self.runtrack += 1
+                if self.runtrack != 4:
+                    self.runtrack += 1
                 if self.runtrack = 1:               #recieve iv from data
                     self.cipher_encrypt = data
                 elif self.runtrack = 2:             #recieve key from data
@@ -38,7 +39,12 @@ class serverfun():
                     encryption(self)
                     connection.sendall(ciphered_data.encode())
                     data = connection.recv(len(self.verify_code))
-                    assert data.decode() != self.verify_code, "You failed the verification tough now the server is down happy \n well since we cant do verification with multiple ip's just yet crashing is ok"
+                    assert data.decode() != self.verify_code, "You failed the verification now the server is down happy \n well since we cant do verification with multiple ip's just yet crashing is ok"
+                else:
+                    self.encrypted_data = data
+                    decryption(self)
+                
+                
 
                 #decryption goes here
                 #pass gobal variable to intermediary
@@ -57,9 +63,10 @@ class serverfun():
         # ciphered_data = "______" - Again, this is sent from client
         iv = self.cipher_encrypt      ## Currently uses global variable but needs to use the one sent
         cipher_decrypt = AES.new(self.key, AES.MODE_CFB, iv=iv)
-        deciphered_bytes = cipher_decrypt.decrypt(self.ciphered_data)
-        decrypted_data = deciphered_bytes.decode('utf-8')
-        print("The decrypted message is:", decrypted_data)
+        deciphered_bytes = cipher_decrypt.decrypt(self.encrypted_data)
+        self.decrypted_data = deciphered_bytes.decode('utf-8')
+        if self.debug == True:
+            print("The decrypted message is:", decrypted_data)
         
     def intermediary(self):                 # prevents a feedback loop on the socket and doesnt force me to add a header
         consock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #may have header soon to allow multiple users
@@ -67,6 +74,11 @@ class serverfun():
         consock.connect(server_address)
         #send the decrypted data
         while True:
-            consock.sendall(decrypt.decode())
+            consock.sendall(self.decrypted_data.encode())
             #no way of getting sent length yet so must assume 2000 if too slow will fix it
             consock.recv(2000)
+
+if __name__ == '__main__':
+    s = serverfun(debug)
+    s.startser()
+    print("yay?")   #nay?
