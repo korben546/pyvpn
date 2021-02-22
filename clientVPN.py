@@ -85,32 +85,31 @@ def encryptionProcess():
 ############################### Connect to server ##################################
 
 class ServeryThings:
-    def __init__(self, ip_address, hostname):
+    def __init__(self, ip_address, hostname, ciphered_data):
         self.ip_address = ip_address
         self.hostname = hostname
-        self.ciphered_data = "This is a message"
+        self.ciphered_data = ciphered_data
 
     def establishConnection(self):
-        print("Test")
+        print("Test")           ### Cursed print statement
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = ('localhost', 5010)
         sock.connect(server_address)
         try:
-            print("Trying")
+            print("Trying")         ### Cursed print statement
             message = self.ciphered_data
+            mystring = str(len(message))
+            sock.sendall(mystring.encode('utf-8'))
             amount_received = 0
             amount_expected = len(message)
             while amount_received < amount_expected:
-                print("Hmmm")
+                sock.sendall(message)
                 data = sock.recv(16)
                 amount_received += len(data)
                 print("received")
         finally:
             print("Closing socket.")
             sock.close()
-
-    def sendingData(self):
-        pass
 
     def debug(self):
         print(f'Hostname: {self.hostname}')
@@ -120,6 +119,7 @@ class ServeryThings:
 
 if __name__ == '__main__':
     login()
-    encryptionProcess()
-    s = ServeryThings(ip_address, hostname)
+    ciphered_data = encryptionProcess()
+    print(ciphered_data[2])     ### Cursed print statement
+    s = ServeryThings(ip_address, hostname, ciphered_data[2])
     s.establishConnection()
