@@ -20,7 +20,7 @@ class serverfun():
             connection, client_address = sock.accept()  #all of this may be temporary because of multi user stuff
             while True:
                 #global data
-                length = connection.recv(6)     #this sets the buffer based on the length of the data the client is trying to send caution without this things dont work
+                length = connection.recv(16)     #this sets the buffer based on the length of the data the client is trying to send caution without this things dont work
                 try:
                     length = int(length.decode())
                 except:
