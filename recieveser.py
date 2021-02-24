@@ -30,11 +30,11 @@ class serverfun():
                 data = data.decode()
                 if self.runtrack != 4:
                     self.runtrack += 1
-                if self.runtrack = 1:               #recieve iv from data
+                if self.runtrack == 1:               #recieve iv from data
                     self.cipher_encrypt = data
-                elif self.runtrack = 2:             #recieve key from data
+                elif self.runtrack == 2:             #recieve key from data
                     self.key = data
-                elif self.runtrack = 3:
+                elif self.runtrack == 3:
                     #verification 
                     encryption(self)
                     connection.sendall(ciphered_data.encode())
