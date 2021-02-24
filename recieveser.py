@@ -54,7 +54,7 @@ class serverfun():
         self.verify_code = data_to_encrypt.encode("utf-8")
         iv = self.cipher_encrypt
         ciphered_data = cipher_encrypt.encrypt(data)
-        if self.debug = True:
+        if self.debug == True:
             print("Encrypted:", ciphered_data)
         return ciphered_data
 
