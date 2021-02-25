@@ -16,6 +16,8 @@ ciphered_data = []
 #################################### Login ########################################
 
 def login():
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
     isUserNew = input("If you do not have a pre-existing account please enter 'Create new'. ").lower()
     if isUserNew == "create new":
         l = Login(username="",password="")
@@ -23,6 +25,13 @@ def login():
     else:
         username = input("Enter your username: ")
         password = input("Enter your password: ")
+        username = "d1" + username
+        password = "d2" + password
+        s = ServeryThings(ip_address, hostname, username)
+        s.establishConnection()
+        time.sleep(1)
+        s = ServeryThings(ip_address, hostname, password)
+        s.establishConnection()
         l = Login(username,password)
         l.verification()
 
@@ -32,13 +41,22 @@ class Login:
         self.password = password
 
     def createNew(self):
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
         for i in range(4):
             newAccVerif = input("Please enter the verification code to create a new account: ")
             if newAccVerif == "0000" and (4-i) > 0:
-                self.username = input("Enter username: ")
-                self.password = input("Enter password: ")
-                self.usersEmail = input("Please enter your email so we can contact you when/if your account is accepted: ")
+                username = input("Enter username: ")
+                password = input("Enter password: ")
+                usersEmail = input("Please enter your email so we can contact you when/if your account is accepted: ")
                 ### Send over to the server
+                username = "e1" + str(username)
+                password = "e2" + str(password)
+                s = ServeryThings(ip_address, hostname, username)
+                s.establishConnection()
+                time.sleep(2)
+                s = ServeryThings(ip_address, hostname, password)
+                s.establishConnection()
                 time.sleep(1)
                 print("Loading...")
                 time.sleep(1)
@@ -91,24 +109,21 @@ class ServeryThings:
         self.ciphered_data = ciphered_data
 
     def establishConnection(self):
-        print("Test")           ### Cursed print statement
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = ('localhost', 5010)
         sock.connect(server_address)
+        time.sleep(0.1)
         try:
-            print("Trying")         ### Cursed print statement
-            message = self.ciphered_data
-            mystring = str(len(message))
-            sock.sendall(mystring.encode('utf-8'))
+            message = str(self.ciphered_data)
+            mystring1 = len(message)
+            mystring = int(len(repr(message).encode()))
+            sock.sendall(repr(mystring).encode())
             amount_received = 0
-            amount_expected = len(message)
-            while amount_received < amount_expected:
-                sock.sendall(message)
-                data = sock.recv(16)
+            while amount_received < mystring1:
+                sock.sendall(repr(message).encode())
+                data = sock.recv(6)
                 amount_received += len(data)
-                print("received")
         finally:
-            print("Closing socket.")
             sock.close()
 
     def debug(self):
@@ -120,6 +135,8 @@ class ServeryThings:
 if __name__ == '__main__':
     login()
     ciphered_data = encryptionProcess()
-    print(ciphered_data[2])     ### Cursed print statement
-    s = ServeryThings(ip_address, hostname, ciphered_data[2])
-    s.establishConnection()
+    letter = ["a","b","c"]
+    for j in range(3):
+        ciphered_data1 = str(letter[j-1]) + str((ciphered_data[j-1]))
+        s = ServeryThings(ip_address, hostname, ciphered_data1)
+        s.establishConnection()
